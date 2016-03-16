@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         final double result;
 
         if (mBound) {
+            System.out.println("Calculated by logic service");
             result = logicService.add(firstNumber, secondNumber);
         } else {
             result = firstNumber + secondNumber;
@@ -163,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         final double result;
 
         if (mBound) {
+            System.out.println("Calculated by logic service");
             result = logicService.sub(firstNumber, secondNumber);
         } else {
             result = firstNumber - secondNumber;
@@ -177,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
         final double result;
 
         if (mBound) {
+            System.out.println("Calculated by logic service");
             result = logicService.div(firstNumber, secondNumber);
         } else {
             result = firstNumber / secondNumber;
@@ -191,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
         final double result;
 
         if (mBound) {
+            System.out.println("Calculated by logic service");
             result = logicService.mul(firstNumber, secondNumber);
         } else {
             result = firstNumber * secondNumber;
