@@ -1,6 +1,11 @@
 package pl.edu.agh.mobilecalculator;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
     private Button subButton;
     private Button mulButton;
     private Button divButton;
+
+    LogicService logicService;
+    boolean mBound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +81,40 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!mBound) {
+            this.bindService(new Intent(MainActivity.this, LogicService.class),
+                    logicConnection, Context.BIND_AUTO_CREATE);
+        }
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mBound) {
+            mBound = false;
+            this.unbindService(logicConnection);
+        }
+    }
+
+    private ServiceConnection logicConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            LogicService.LocalBinder binder = (LogicService.LocalBinder) service;
+            logicService = binder.getService();
+            mBound = true;
+            Toast.makeText(MainActivity.this, "Logic Service Connected!",
+                    Toast.LENGTH_SHORT).show();
+        }
+        public void onServiceDisconnected(ComponentName className) {
+            logicService = null;
+            mBound = false;
+            Toast.makeText(MainActivity.this, "Logic Service Disconnected!",
+                    Toast.LENGTH_SHORT).show();
+        }
+    };
+
+
 
     private void createButtonListeners() {
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -100,35 +143,58 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void addNumbers() {
-        int firstNumber = Integer.parseInt(n1EditText.getText().toString());
-        int secondNumber = Integer.parseInt(n2EditText.getText().toString());
 
-        int result = firstNumber + secondNumber;
-        resEditText.setText(Integer.toString(result));
+    private void addNumbers() {
+        double firstNumber = Double.parseDouble(n1EditText.getText().toString());
+        double secondNumber = Double.parseDouble(n2EditText.getText().toString());
+        final double result;
+
+        if (mBound) {
+            result = logicService.add(firstNumber, secondNumber);
+        } else {
+            result = firstNumber + secondNumber;
+        }
+        resEditText.setText(Double.toString(result));
     }
 
     private void subNumbers() {
-        int firstNumber = Integer.parseInt(n1EditText.getText().toString());
-        int secondNumber = Integer.parseInt(n2EditText.getText().toString());
+        double firstNumber = Double.parseDouble(n1EditText.getText().toString());
+        double secondNumber = Double.parseDouble(n2EditText.getText().toString());
+        final double result;
 
-        int result = firstNumber - secondNumber;
-        resEditText.setText(Integer.toString(result));
+        if (mBound) {
+            result = logicService.sub(firstNumber, secondNumber);
+        } else {
+            result = firstNumber - secondNumber;
+        }
+        resEditText.setText(Double.toString(result));
     }
+
 
     private void divNumbers() {
-        int firstNumber = Integer.parseInt(n1EditText.getText().toString());
-        int secondNumber = Integer.parseInt(n2EditText.getText().toString());
+        double firstNumber = Double.parseDouble(n1EditText.getText().toString());
+        double secondNumber = Double.parseDouble(n2EditText.getText().toString());
+        final double result;
 
-        int result = firstNumber / secondNumber;
-        resEditText.setText(Integer.toString(result));
+        if (mBound) {
+            result = logicService.div(firstNumber, secondNumber);
+        } else {
+            result = firstNumber / secondNumber;
+        }
+        resEditText.setText(Double.toString(result));
     }
 
-    private void mulNumbers() {
-        int firstNumber = Integer.parseInt(n1EditText.getText().toString());
-        int secondNumber = Integer.parseInt(n2EditText.getText().toString());
 
-        int result = firstNumber * secondNumber;
-        resEditText.setText(Integer.toString(result));
+    private void mulNumbers() {
+        double firstNumber = Double.parseDouble(n1EditText.getText().toString());
+        double secondNumber = Double.parseDouble(n2EditText.getText().toString());
+        final double result;
+
+        if (mBound) {
+            result = logicService.mul(firstNumber, secondNumber);
+        } else {
+            result = firstNumber * secondNumber;
+        }
+        resEditText.setText(Double.toString(result));
     }
 }
